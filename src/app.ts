@@ -1,6 +1,6 @@
 import express, { Application } from "express";
 import http from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 class App {
   // constructor é algo que é iniciado quando a classe for iniciada
@@ -16,6 +16,23 @@ class App {
 
   public listen() {
     this.app.listen(3333, () => console.log("Server running on port 3333"));
+  }
+
+  public listenSocket() {
+    this.io.of("/streams").on("connection", this.socketEvents);
+  }
+
+  private socketEvents(socket: Socket) {
+    console.log("socket connect", +socket);
+    socket.on("subscribe", (data) => {
+      socket.join(data.roomId);
+
+      socket.broadcast.to(data.roomId).emit("chat", {
+        message: data.message,
+        userName: data.userName,
+        time: data.time,
+      });
+    });
   }
 }
 
