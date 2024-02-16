@@ -32,13 +32,22 @@ class App {
       console.log("usuario inserido na sala: " + data.roomId);
       socket.join(data.roomId);
 
-      socket.on("chat", (data) => {
-        console.log("🚀 ~ App ~ socket.on ~ data:", data);
-        socket.broadcast.to(data.roomId).emit("chat", {
-          message: data.message,
+      const roomsSession = Array.from(socket.rooms);
+
+      if (roomsSession.length > 1) {
+        socket.to(data.roomId).emit("new user", {
+          socketId: socket.id,
           username: data.username,
-          time: data.time,
         });
+      }
+    });
+
+    socket.on("chat", (data) => {
+      console.log("🚀 ~ App ~ socket.on ~ data:", data);
+      socket.broadcast.to(data.roomId).emit("chat", {
+        message: data.message,
+        username: data.username,
+        time: data.time,
       });
     });
   }
