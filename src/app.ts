@@ -31,7 +31,9 @@ class App {
     socket.on("subscribe", (data) => {
       console.log("usuario inserido na sala: " + data.roomId);
       socket.join(data.roomId);
+      socket.join(data.socketId);
 
+      //verifica se existe uma sala
       const roomsSession = Array.from(socket.rooms);
 
       if (roomsSession.length > 1) {
@@ -40,6 +42,11 @@ class App {
           username: data.username,
         });
       }
+    });
+
+    socket.on("newUserStart", (data) => {
+      console.log("🚀 ~ App ~ socket.on ~ newUserStart:", data);
+      socket.to(data.to).emit("newUserStart", { sender: data.sender });
     });
 
     socket.on("chat", (data) => {
